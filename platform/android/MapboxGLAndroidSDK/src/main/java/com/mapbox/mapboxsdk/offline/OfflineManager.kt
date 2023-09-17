@@ -4,10 +4,12 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
+import androidx.annotation.IntDef
 import androidx.annotation.Keep
 import androidx.annotation.UiThread
 import com.mapbox.mapboxsdk.LibraryLoader
 import com.mapbox.mapboxsdk.R
+import com.mapbox.mapboxsdk.geometry.LatLngBounds
 import com.mapbox.mapboxsdk.geometry.LatLngBounds.Companion.world
 import com.mapbox.mapboxsdk.net.ConnectivityReceiver
 import com.mapbox.mapboxsdk.storage.FileSource
@@ -105,6 +107,15 @@ class OfflineManager private constructor(context: Context) {
          */
         fun onError(error: String)
     }
+
+    @IntDef(
+        flag = true,
+        value = [RESOURCE_NONE, RESOURCE_STYLE, RESOURCE_SOURCE, RESOURCE_TILE, RESOURCE_GLYPHS, RESOURCE_SPRITEIMAGE, RESOURCE_SPRITEJSON]
+    )
+    @Retention(
+        AnnotationRetention.SOURCE
+    )
+    annotation class ResourceKind
 
     /*
    * Constructor
@@ -520,6 +531,10 @@ class OfflineManager private constructor(context: Context) {
         return world().contains(definition.bounds!!)
     }
 
+    fun addSupplementaryOfflineDatabase(cachePath: String, @ResourceKind resourceKind: Int) {
+        addSupplementaryOfflineDatabase(cachePath, resourceKind, null)
+    }
+
     /**
      * Sets the maximum number of Mapbox-hosted tiles that may be downloaded and stored on the current device.
      * By default, the limit is set to 6,000.
@@ -609,8 +624,26 @@ class OfflineManager private constructor(context: Context) {
     @Keep
     external fun putResourceWithUrl(url: String?, data: ByteArray?, modified: Long, expires: Long, etag: String?, mustRevalidate: Boolean)
 
+    @Keep
+    external fun addSupplementaryOfflineDatabase(
+        cachePath: String,
+        @ResourceKind resourceKind: Int,
+        latLngBounds: LatLngBounds?
+    )
+
+    @Keep
+    external fun removeSupplementaryOfflineDatabases(cachePath: String)
+
     companion object {
         private const val TAG = "Mbgl - OfflineManager"
+
+        const val RESOURCE_NONE: Int = 0
+        const val RESOURCE_STYLE: Int = 1 shl 0
+        const val RESOURCE_SOURCE: Int = 1 shl 1
+        const val RESOURCE_TILE: Int = 1 shl 2
+        const val RESOURCE_GLYPHS: Int = 1 shl 3
+        const val RESOURCE_SPRITEIMAGE: Int = 1 shl 4
+        const val RESOURCE_SPRITEJSON: Int = 1 shl 5
 
         //
         // Static methods

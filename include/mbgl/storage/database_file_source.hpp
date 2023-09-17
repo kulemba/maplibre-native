@@ -128,6 +128,20 @@ public:
     // Offline
 
     /**
+     * Ulmon: Add new supplementary database file
+     * @param kind the kind of data this database holds
+     * @param latLngBounds the bounds this database holds data for
+     * @param cachePath the cache path of the database to add
+     */
+    void addSupplementaryOfflineDatabase(Resource::Kind kind, const optional<LatLngBounds>& latLngBounds, const std::string& cachePath);
+
+    /**
+     * Ulmon: Remove a previously added database file
+     * @param cachePath the cache path of the database to remove.
+     */
+    void removeSupplementaryOfflineDatabases(const std::string& cachePath);
+
+    /**
      * Retrieve all regions in the offline database.
      *
      * The query will be executed asynchronously and the results passed to the given
