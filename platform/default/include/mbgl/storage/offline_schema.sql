@@ -43,13 +43,22 @@ CREATE TABLE resources (
 );
 
 --
+-- Index table to deduplicate the url_template from the tiles table.
+--
+CREATE TABLE url_templates (
+  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  url_template TEXT NOT NULL,                      -- The URL of the resource without the access token and without
+                                                   -- the tiles id substituted.
+  UNIQUE (url_template)
+);
+
+--
 -- Table containing all tiles, both vector and raster.
 --
 CREATE TABLE tiles (
   id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,   -- Primary key.
 
-  url_template TEXT NOT NULL,                      -- The URL of the resource without the access token and without
-                                                   -- the tiles id substituted.
+  url_template_id INTEGER NOT NULL REFERENCES url_templates(id), -- A foreign key to reference the url_template
 
   pixel_ratio INTEGER NOT NULL,                    -- The tile pixel ratio, typically 1 for vector tiles.
 
@@ -84,7 +93,7 @@ CREATE TABLE tiles (
 
   must_revalidate INTEGER NOT NULL DEFAULT 0,      -- When set to true, the tile will not be used unless it gets
                                                    -- first revalidated by the server.
-  UNIQUE (url_template, pixel_ratio, z, x, y)
+  UNIQUE (url_template_id, pixel_ratio, z, x, y)
 );
 
 --

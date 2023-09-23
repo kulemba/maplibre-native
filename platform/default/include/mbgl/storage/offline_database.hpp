@@ -155,6 +155,10 @@ private:
 
     TileServerOptions tileServerOptions;
 
+    void checkURLTemplateIndexing();
+
+    bool nonIndexedURLTemplates;
+
     class DatabaseSizeChangeStats {
     public:
         explicit DatabaseSizeChangeStats(OfflineDatabase*);
