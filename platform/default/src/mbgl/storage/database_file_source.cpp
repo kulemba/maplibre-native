@@ -39,8 +39,16 @@ public:
         ), onlineFileSource(std::move(onlineFileSource_)) {}
 
     void request(const Resource& resource, const ActorRef<FileSourceRequest>& req) {
-        optional<Response> offlineResponse =
-            (resource.storagePolicy != Resource::StoragePolicy::Volatile) ? db->get(resource) : nullopt;
+        optional<Response> offlineResponse;
+        if (resource.storagePolicy != Resource::StoragePolicy::Volatile) {
+            try {
+                offlineResponse = db->get(resource);
+            } catch (...) {
+                offlineResponse = nullopt;
+            }
+        } else {
+            offlineResponse = nullopt;
+        }
 
         if (! offlineResponse) {
             auto supplementaryCachePathsOfKind = supplementaryCachePaths.find(resource.kind);
@@ -52,10 +60,16 @@ public:
                     const auto &cachePath = j->second;
                     auto supplementaryOfflineDatabase = supplementaryOfflineDatabases.find(cachePath);
                     if (supplementaryOfflineDatabase == supplementaryOfflineDatabases.end()) {
-                        supplementaryOfflineDatabase = supplementaryOfflineDatabases.emplace(cachePath, std::make_unique<OfflineDatabase>(cachePath, TileServerOptions())).first;
+                        try {
+                            supplementaryOfflineDatabase = supplementaryOfflineDatabases.emplace(cachePath, std::make_unique<OfflineDatabase>(cachePath, TileServerOptions())).first;
+                        } catch (...) {
+                        }
                     }
                     if (supplementaryOfflineDatabase != supplementaryOfflineDatabases.end()) {
-                        offlineResponse = supplementaryOfflineDatabase->second->get(resource);
+                        try {
+                            offlineResponse = supplementaryOfflineDatabase->second->get(resource);
+                        } catch (...) {
+                        }
                     }
                 }
             }
@@ -80,9 +94,12 @@ public:
     }
 
     void forward(const Resource& resource, const Response& response, const std::function<void()>& callback) {
-        db->put(resource, response);
-        if (callback) {
-            callback();
+        try {
+            db->put(resource, response);
+            if (callback) {
+                callback();
+            }
+        } catch (...) {
         }
     }
 
@@ -118,7 +135,12 @@ public:
         }
     }
 
-    void put(const Resource& resource, const Response& response) { db->put(resource, response); }
+    void put(const Resource& resource, const Response& response) {
+        try {
+            db->put(resource, response);
+        } catch (...) {
+        }
+    }
 
     void invalidateAmbientCache(const std::function<void(std::exception_ptr)>& callback) {
         callback(db->invalidateAmbientCache());
