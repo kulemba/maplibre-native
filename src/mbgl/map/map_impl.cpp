@@ -61,6 +61,7 @@ void Map::Impl::onUpdate() {
                                style->impl->getImageImpls(),
                                style->impl->getSourceImpls(),
                                style->impl->getLayerImpls(),
+                               style->impl->getMaxZoomLimit(),
                                annotationManager.makeWeakPtr(),
                                fileSource,
                                prefetchZoomDelta,

@@ -37,5 +37,8 @@ optional<uint8_t> Source::Impl::getMaxOverscaleFactorForParentTiles() const noex
     return maxOverscaleFactor;
 }
 
+void Source::Impl::limitMaxZoom(uint8_t) {
+}
+
 } // namespace style
 } // namespace mbgl

@@ -34,6 +34,7 @@ public:
     const Immutable<std::vector<Immutable<style::Image::Impl>>> images;
     const Immutable<std::vector<Immutable<style::Source::Impl>>> sources;
     const Immutable<std::vector<Immutable<style::Layer::Impl>>> layers;
+    const uint8_t maxZoomLimit;
 
     mapbox::base::WeakPtr<AnnotationManager> annotationManager;
     std::shared_ptr<FileSource> fileSource;

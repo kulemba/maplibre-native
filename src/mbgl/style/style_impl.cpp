@@ -41,15 +41,16 @@ Style::Impl::Impl(std::shared_ptr<FileSource> fileSource_, float pixelRatio)
 
 Style::Impl::~Impl() = default;
 
-void Style::Impl::loadJSON(const std::string& json_) {
+void Style::Impl::loadJSON(const std::string& json_, uint8_t maxZoomLimit_) {
     lastError = nullptr;
     observer->onStyleLoading();
 
+    maxZoomLimit = maxZoomLimit_;
     url.clear();
     parse(json_);
 }
 
-void Style::Impl::loadURL(const std::string& url_) {
+void Style::Impl::loadURL(const std::string& url_, uint8_t maxZoomLimit_) {
     if (!fileSource) {
         observer->onStyleError(
             std::make_exception_ptr(util::StyleLoadException("Unable to find resource provider for style url.")));
@@ -59,6 +60,7 @@ void Style::Impl::loadURL(const std::string& url_) {
     lastError = nullptr;
     observer->onStyleLoading();
 
+    maxZoomLimit = maxZoomLimit_;
     loaded = false;
     url = url_;
 
@@ -136,6 +138,10 @@ std::string Style::Impl::getJSON() const {
 
 std::string Style::Impl::getURL() const {
     return url;
+}
+
+uint8_t Style::Impl::getMaxZoomLimit() const {
+    return maxZoomLimit;
 }
 
 void Style::Impl::setTransitionOptions(const TransitionOptions& options) {

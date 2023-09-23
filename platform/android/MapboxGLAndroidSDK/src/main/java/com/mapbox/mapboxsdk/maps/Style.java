@@ -793,6 +793,7 @@ public class Style {
 
     private TransitionOptions transitionOptions;
     private String styleUri;
+    private byte maxZoomLimit = (byte)0xFF;
     private String styleJson;
 
     /**
@@ -880,6 +881,11 @@ public class Style {
     @NonNull
     public Builder fromJson(@NonNull String styleJson) {
       this.styleJson = styleJson;
+      return this;
+    }
+
+    public Builder withMaxZoomLimit(byte maxZoomLimit) {
+      this.maxZoomLimit = maxZoomLimit;
       return this;
     }
 
@@ -1179,6 +1185,10 @@ public class Style {
 
     public String getUri() {
       return styleUri;
+    }
+
+    byte getMaxZoomLimit() {
+      return maxZoomLimit;
     }
 
     public String getJson() {

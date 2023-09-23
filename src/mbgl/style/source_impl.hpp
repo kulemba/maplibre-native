@@ -26,6 +26,8 @@ public:
     void setMaxOverscaleFactorForParentTiles(optional<uint8_t> overscaleFactor) noexcept;
     optional<uint8_t> getMaxOverscaleFactorForParentTiles() const noexcept;
 
+    virtual void limitMaxZoom(uint8_t);
+
     bool isVolatile() const { return volatileFlag; }
     void setVolatile(bool set) { volatileFlag = set; }
     const SourceType type;

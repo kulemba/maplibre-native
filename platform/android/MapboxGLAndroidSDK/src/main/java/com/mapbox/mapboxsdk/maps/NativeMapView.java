@@ -187,7 +187,15 @@ final class NativeMapView implements NativeMap {
     if (checkState("setStyleUri")) {
       return;
     }
-    nativeSetStyleUrl(url);
+    nativeSetStyleUrl(url, (byte) 0xFF);
+  }
+
+  @Override
+  public void setStyleUri(String url, byte maxZoomLimit) {
+    if (checkState("setStyleUri")) {
+      return;
+    }
+    nativeSetStyleUrl(url, maxZoomLimit);
   }
 
   @Override
@@ -204,7 +212,15 @@ final class NativeMapView implements NativeMap {
     if (checkState("setStyleJson")) {
       return;
     }
-    nativeSetStyleJson(newStyleJson);
+    nativeSetStyleJson(newStyleJson, (byte) 0xFF);
+  }
+
+  @Override
+  public void setStyleJson(String newStyleJson, byte maxZoomLimit) {
+    if (checkState("setStyleJson")) {
+      return;
+    }
+    nativeSetStyleJson(newStyleJson, maxZoomLimit);
   }
 
   @Override
@@ -214,6 +230,14 @@ final class NativeMapView implements NativeMap {
       return "";
     }
     return nativeGetStyleJson();
+  }
+
+  @Override
+  public byte getMaxZoomLimit() {
+    if (checkState("getMaxZoomLimit")) {
+      return 0;
+    }
+    return nativeGetMaxZoomLimit();
   }
 
   @Override
@@ -1191,18 +1215,21 @@ final class NativeMapView implements NativeMap {
   private native void nativeResizeView(int width, int height);
 
   @Keep
-  private native void nativeSetStyleUrl(String url);
+  private native void nativeSetStyleUrl(String url, byte maxZoomLimit);
 
   @NonNull
   @Keep
   private native String nativeGetStyleUrl();
 
   @Keep
-  private native void nativeSetStyleJson(String newStyleJson);
+  private native void nativeSetStyleJson(String newStyleJson, byte maxZoomLimit);
 
   @NonNull
   @Keep
   private native String nativeGetStyleJson();
+
+  @Keep
+  private native byte nativeGetMaxZoomLimit();
 
   @Keep
   private native void nativeSetLatLngBounds(LatLngBounds latLngBounds);
