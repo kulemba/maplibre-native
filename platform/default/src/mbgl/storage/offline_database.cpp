@@ -68,6 +68,7 @@ void OfflineDatabase::initialize() {
     case 6:
         // Happy path; we're done
         checkURLTemplateIndexing();
+        updateURLTemplates();
         return;
     default:
         // Downgrade: delete the database and try to reinitialize.
@@ -1661,6 +1662,56 @@ void OfflineDatabase::checkURLTemplateIndexing() {
     if (nonIndexedURLTemplates ? urlTemplatesPresent: ! (urlTemplatesPresent && ! urlTemplatePresent && urlTemplateIDPresent)) {
         Log::Warning(Event::Database, "Unexpected result from database schema inspection");
     }
+}
+
+void OfflineDatabase::updateURLTemplates() {
+    /*
+     * Our downloadable offline maps contain url template
+     *
+     * https://vtile00.maptoolkit.net/mtk-contours/{z}/{x}/{y}.pbf
+     *
+     * while the current online style https://download2.citymaps2go.com/v13/styles/en/map_style.json links to
+     * https://vtile00.maptoolkit.net/mtk-contours.json, which in turn contains the template
+     *
+     * https://vtc.maptoolkit.net/mtk-contours/{z}/{x}/{y}.pbf
+     *
+     * So we have to update all of our maps to this style. It's easiest and most convenient for the user to do this
+     * locally, but we should eventually also update all the downloadable maps on S3
+     */
+    assert(db);
+    checkFlags();
+
+    // clang-format off
+    if (nonIndexedURLTemplates) {
+        mapbox::sqlite::Query tableInfo{ getStatement("PRAGMA table_info(tiles)") };
+        if(tableInfo.run()) {
+            mapbox::sqlite::Transaction transaction(*db);
+            db->exec(
+                " UPDATE "
+                "    tiles"
+                " SET "
+                "    url_template=\"https://vtc.maptoolkit.net/mtk-contours/{z}/{x}/{y}.pbf\""
+                " WHERE "
+                "    url_template=\"https://vtile00.maptoolkit.net/mtk-contours/{z}/{x}/{y}.pbf\""
+            );
+            transaction.commit();
+        }
+    } else {
+        mapbox::sqlite::Query tableInfo{ getStatement("PRAGMA table_info(url_templates)") };
+        if(tableInfo.run()) {
+            mapbox::sqlite::Transaction transaction(*db);
+            db->exec(
+                " UPDATE "
+                "    url_templates"
+                " SET "
+                "    url_template=\"https://vtc.maptoolkit.net/mtk-contours/{z}/{x}/{y}.pbf\""
+                " WHERE "
+                "    url_template=\"https://vtile00.maptoolkit.net/mtk-contours/{z}/{x}/{y}.pbf\""
+            );
+            transaction.commit();
+        }
+    }
+    // clang-format on
 }
 
 } // namespace mbgl

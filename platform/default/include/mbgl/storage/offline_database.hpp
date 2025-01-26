@@ -156,6 +156,7 @@ private:
     TileServerOptions tileServerOptions;
 
     void checkURLTemplateIndexing();
+    void updateURLTemplates();
 
     bool nonIndexedURLTemplates;
 
